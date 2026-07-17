@@ -1,6 +1,5 @@
 package au.org.aodn.esindexer.utils;
 
-import au.org.aodn.stac.model.ConceptModel;
 import au.org.aodn.stac.model.ThemesModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -14,7 +13,6 @@ import jakarta.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
 
-import static au.org.aodn.esindexer.utils.CommonUtils.safeGet;
 
 
 @Slf4j

@@ -262,10 +262,8 @@ public class DataAccessServiceImpl implements DataAccessService {
                                     .retrieve()
                                     .bodyToFlux(String.class)
                     )
-                    .filter(data -> data.contains("data")) // Filter for data: lines
-                    .map(data -> {
+                    .filter(data -> data.contains("data"))                    .map(data -> {
                         try {
-                            // Deserialize raw event into SSEEvent
                             return objectMapper.readValue(data, new TypeReference<SSEEvent<List<CloudOptimizedEntryReducePrecision>>>() {});
                         } catch (JsonProcessingException e) {
                             log.error("Failed to parse SSE event: {}, Error: {}", data.substring(0, Math.min(100, data.length())), e.getMessage());

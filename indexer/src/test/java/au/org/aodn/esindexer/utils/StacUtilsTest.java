@@ -32,11 +32,8 @@ public class StacUtilsTest {
         assertNotNull(result, "Result should not be null");
         assertEquals(3, result.size(), "Result should contain 3 bounding boxes (1 overall + 2 individual)");
 
-        // Expected overall bounding box
-        // Input envelopes: [70.0, -70.0, 180.0, 20.0] and [-180.0, -70.0, -170.0, 20.0]
-        // Normalized to [0, 360]: [70.0, -70.0, 180.0, 20.0] and [180.0, -70.0, 190.0, 20.0]
-        // Overall: [70.0, -70.0, 190.0, 20.0]
-        // Shift to [-180, 180]: [70.0, -70.0, -170.0, 20.0] (since 190 - 360 = -170)
+        // [-180,-170] sits entirely west of the antimeridian, so it shifts to [180,190]
+        // and unions with [70,180] into one continuous [70,190] range
         List<BigDecimal> expectedOverall = Arrays.asList(
                 BigDecimal.valueOf(70.0).setScale(10, RoundingMode.HALF_UP),
                 BigDecimal.valueOf(-70.0).setScale(10, RoundingMode.HALF_UP),

@@ -214,7 +214,7 @@ public class IndexCloudOptimizedServiceImpl extends IndexServiceImpl implements 
         final int MAX_NESTED_OBJECTS = 9000;
         List<FeatureCollectionGeoJson> featureCollections = new ArrayList<>();
         if (featureCollection.getFeatures().size() > MAX_NESTED_OBJECTS) {
-            // split the feature collection into smaller ones so that all smaller ones have less than MAX_NESTED_OBJECTS features. e.g.: first featurecollection is from 0 to 8999, second is from 9000 to 17999, etc.
+            // Elasticsearch rejects documents with too many nested objects
             log.info("Splitting feature collection with {} features into smaller ones", featureCollection.getFeatures().size());
             int i = 0;
             while (i < featureCollection.getFeatures().size()) {
