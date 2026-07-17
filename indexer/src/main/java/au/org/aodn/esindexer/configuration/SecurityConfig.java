@@ -3,7 +3,8 @@ package au.org.aodn.esindexer.configuration;
 import au.org.aodn.esindexer.security.APIKeyAuthFilter;
 import au.org.aodn.esindexer.security.JwtAuthenticationEntryPoint;
 
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +45,10 @@ public class SecurityConfig {
         filter.setAuthenticationManager(
             authentication -> {
                 String principal = (String) authentication.getPrincipal();
-                if (!Objects.equals(principalRequestValue, principal)) {
+                // Constant-time comparison so the key cannot be probed via timing
+                if (principal == null || !MessageDigest.isEqual(
+                        principalRequestValue.getBytes(StandardCharsets.UTF_8),
+                        principal.getBytes(StandardCharsets.UTF_8))) {
                     throw new BadCredentialsException("Invalid API key.");
                 }
                 authentication.setAuthenticated(true);

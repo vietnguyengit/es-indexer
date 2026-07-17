@@ -118,7 +118,7 @@ public class IndexCloudOptimizedServiceImpl extends IndexServiceImpl implements 
                             // Do nothing
                         }
                     }
-                    callback.onProgress(String.format(String.format("Finish indexing dataset with UUID: %s, dataset: %s", uuid, key)));
+                    callback.onProgress(String.format("Finish indexing dataset with UUID: %s, dataset: %s", uuid, key));
                 }
                 catch(MetadataNotFoundException enf) {
                     callback.onProgress(String.format("Metadata not found, skip! %s", enf.getMessage()));
@@ -214,15 +214,15 @@ public class IndexCloudOptimizedServiceImpl extends IndexServiceImpl implements 
         final int MAX_NESTED_OBJECTS = 9000;
         List<FeatureCollectionGeoJson> featureCollections = new ArrayList<>();
         if (featureCollection.getFeatures().size() > MAX_NESTED_OBJECTS) {
-            // split the feature collection into smaller ones so that all smaller ones have less than 9000 features. e.g.: first featurecollection is from 0 to 8999, second is from 9000 to 17999, etc.
+            // Elasticsearch rejects documents with too many nested objects
             log.info("Splitting feature collection with {} features into smaller ones", featureCollection.getFeatures().size());
             int i = 0;
             while (i < featureCollection.getFeatures().size()) {
                 FeatureCollectionGeoJson featureCollectionPart = new FeatureCollectionGeoJson();
-                featureCollectionPart.setFeatures(featureCollection.getFeatures().subList(i, Math.min(i + 9000, featureCollection.getFeatures().size())));
+                featureCollectionPart.setFeatures(featureCollection.getFeatures().subList(i, Math.min(i + MAX_NESTED_OBJECTS, featureCollection.getFeatures().size())));
                 featureCollectionPart.setProperties(featureCollection.getProperties());
                 featureCollections.add(featureCollectionPart);
-                i += 9000;
+                i += MAX_NESTED_OBJECTS;
             }
         } else {
             log.debug("Feature collection has {} features", featureCollection.getFeatures().size());

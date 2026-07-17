@@ -16,8 +16,6 @@ import au.org.aodn.metadata.iso19115_3_2018.MDMetadataType;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/api/v1/indexer/report/")
@@ -48,7 +46,6 @@ public class IndexerReportController {
         Iterable<String> records = this.geoNetworkResourceService.getAllMetadataRecords(null);
         Iterator<String> i = records.iterator();
 
-        CountDownLatch cd = new CountDownLatch(1);
         while(i.hasNext()) {
             String r = i.next();
             try {
@@ -60,7 +57,8 @@ public class IndexerReportController {
                     if (elasticSearchIndexService.getFirstMatchId(this.indexName, "id", uuid) == null) {
                         uuids.add(uuid);
                     }
-                    cd.await(50, TimeUnit.MILLISECONDS);
+                    // Small pause so we do not hammer GeoNetwork and Elastic
+                    Thread.sleep(50);
                 }
             } catch (Exception e) {
                 uuids.add(String.format("%s[%s]", e.getMessage(), r));

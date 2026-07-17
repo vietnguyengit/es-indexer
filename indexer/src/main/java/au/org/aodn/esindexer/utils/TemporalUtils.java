@@ -3,8 +3,6 @@ package au.org.aodn.esindexer.utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,8 +21,9 @@ public class TemporalUtils {
      */
     public static List<List<String>> concatOverallTemporalRange(List<List<String>> temporals) {
         ZonedDateTime min = null;
-        // Set the max to the smallest to give change to increase in value.
-        ZonedDateTime max = Instant.EPOCH.atZone(ZoneOffset.UTC);
+        ZonedDateTime max = null;
+        // A null end date means ongoing, which outranks any concrete end date
+        boolean openEnded = false;
 
         if(temporals != null) {
             for (List<String> temporal : temporals) {
@@ -33,14 +32,12 @@ public class TemporalUtils {
                     min = (min == null || min.isAfter(t)) ? t : min;
                 }
 
-                if (temporal.get(1) != null && max != null) {
+                if (temporal.get(1) != null) {
                     ZonedDateTime t = ZonedDateTime.parse(temporal.get(1));
-                    max = max.isBefore(t) ? t : max;
+                    max = (max == null || max.isBefore(t)) ? t : max;
                 }
                 else {
-                    // null indicate no end day yet, so it means latest and always the greatest
-                    // so once it set to null, there is no need to set other values
-                    max = null;
+                    openEnded = true;
                 }
             }
             // Append the overall to the front
@@ -48,7 +45,7 @@ public class TemporalUtils {
 
             List<String> overall = new ArrayList<>(2);
             overall.add(min == null ? null : min.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-            overall.add(max == null || Instant.EPOCH.atZone(ZoneOffset.UTC).equals(max) ? null : max.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            overall.add(openEnded || max == null ? null : max.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             f.add(overall);
 
             f.addAll(temporals);

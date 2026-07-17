@@ -42,6 +42,8 @@ public class DataAccessServiceAutoConfiguration {
         // A special rest template that turn on compression on both send and receive
         // it is important because cloud optimize is large
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10_000);
+        factory.setReadTimeout(120_000);
         RestTemplate restTemplate = new RestTemplate(factory);
         // Add interceptor for default headers and GZIP compression
         restTemplate.getInterceptors().add(new GzipDefaultHeadersInterceptor(apiKey, internalHeaderSecret));

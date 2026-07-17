@@ -2,7 +2,7 @@ package au.org.aodn.esindexer;
 
 import au.org.aodn.esindexer.configuration.GeoNetworkSearchTestConfig;
 import au.org.aodn.esindexer.service.VocabServiceImpl;
-import au.org.aodn.metadata.geonetwork.utils.CommonUtils;
+import au.org.aodn.metadata.geonetwork.service.GeoNetworkServiceImpl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
@@ -18,7 +18,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestClientException;
 import org.testcontainers.containers.ComposeContainer;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
-import static au.org.aodn.esindexer.utils.CommonUtils.persevere;
 import static org.junit.Assert.assertEquals;
 
 public class BaseTestClass {
@@ -56,6 +56,26 @@ public class BaseTestClass {
 
     @Autowired
     protected VocabServiceImpl vocabService;
+
+    // retry helper for test classes that are not spring beans
+    public static void persevere(BooleanSupplier action) {
+        persevere(10, 2, action);
+    }
+
+    public static void persevere(int maxRetries, int delaySecond, BooleanSupplier action) {
+
+        for (int i = 0; i < maxRetries; i++) {
+            var isSuccessful = action.getAsBoolean();
+            if (isSuccessful) {
+                return;
+            }
+            try {
+                Thread.sleep(delaySecond * 1000L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
 
     protected void clearElasticIndex(String indexName) throws IOException {
         logger.debug("Clear elastic index");
@@ -85,7 +105,7 @@ public class BaseTestClass {
         HttpHeaders headers = new HttpHeaders();
 
         headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.ALL, MediaType.TEXT_PLAIN));
-        headers.setContentType(contentType == null ? CommonUtils.MEDIA_UTF8_XML : contentType);
+        headers.setContentType(contentType == null ? GeoNetworkServiceImpl.MEDIA_UTF8_XML : contentType);
         headers.setCacheControl(CacheControl.empty());
 
         headers.add(HttpHeaders.USER_AGENT, "TestRestTemplate");

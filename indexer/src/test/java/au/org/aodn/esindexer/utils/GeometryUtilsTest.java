@@ -2,7 +2,6 @@ package au.org.aodn.esindexer.utils;
 
 import au.org.aodn.metadata.iso19115_3_2018.MDMetadataType;
 import jakarta.xml.bind.JAXBException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.*;
@@ -10,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static au.org.aodn.esindexer.BaseTestClass.readResourceFile;
@@ -41,8 +38,7 @@ public class GeometryUtilsTest {
         // Whole spatial extends
         List<List<Geometry>> withLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, size) -> GeometryBase.findPolygonsFrom(GeometryBase.COORDINATE_SYSTEM_CRS84, rawInput),
-                null
+                rawInput -> GeometryBase.findPolygonsFrom(GeometryBase.COORDINATE_SYSTEM_CRS84, rawInput)
         );
 
         List<List<Geometry>> l = Objects.requireNonNull(withLand);
@@ -67,8 +63,7 @@ public class GeometryUtilsTest {
         // Strip the land away.
         List<List<Geometry>> noLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, s) -> GeometryUtils.createGeometryWithoutLand(rawInput),
-                null
+                rawInput -> GeometryUtils.createGeometryWithoutLand(rawInput)
         );
 
         List<List<Geometry>> nl = Objects.requireNonNull(noLand);
@@ -111,8 +106,7 @@ public class GeometryUtilsTest {
         // Strip the land away.
         List<List<Geometry>> noLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, s) -> GeometryUtils.createGeometryWithoutLand(rawInput),
-                null
+                rawInput -> GeometryUtils.createGeometryWithoutLand(rawInput)
         );
 
         List<List<Geometry>> nl = Objects.requireNonNull(noLand);
@@ -138,26 +132,5 @@ public class GeometryUtilsTest {
 
         assertEquals(118.0, ncoors[4].getX(), 0.00);
         assertEquals(-36.0, ncoors[4].getY(), 0.00);
-    }
-    /**
-     * Given a point call this function return a GeometryCollection contain a single point
-     */
-    @Test
-    public void verifyCreateJsonPoint() {
-        Map<?,?> item = GeometryUtils.createGeoShapeJson(
-                BigDecimal.valueOf(1.2),
-                BigDecimal.valueOf(2.2)
-        );
-
-        Assertions.assertNotNull(item);
-        Assertions.assertEquals("GeometryCollection", item.get("type"));
-        Assertions.assertInstanceOf(List.class, item.get("geometries"));
-
-        List<Map<?,?>> geometries = (List<Map<?,?>>)item.get("geometries");
-        Assertions.assertInstanceOf(List.class, geometries.get(0).get("coordinates"));
-
-        List<?> coors = (List<?>)geometries.get(0).get("coordinates");
-        Assertions.assertEquals(1.2, coors.get(0));
-        Assertions.assertEquals(2.2, coors.get(1));
     }
 }

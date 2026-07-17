@@ -327,6 +327,8 @@ public class IndexerController {
 
         executor.submit(msg);
         executor.submit(task);
+        // Per-request pool, without this its threads leak
+        executor.shutdown();
 
         return emitter;
     }

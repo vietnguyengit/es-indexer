@@ -5,6 +5,7 @@ import au.org.aodn.ardcvocabs.service.ArdcVocabService;
 import au.org.aodn.esindexer.configuration.AppConstants;
 import au.org.aodn.esindexer.exception.DocumentNotFoundException;
 import au.org.aodn.esindexer.exception.IgnoreIndexingVocabsException;
+import au.org.aodn.esindexer.utils.CommonUtils;
 import au.org.aodn.stac.model.ConceptModel;
 import au.org.aodn.stac.model.ContactsModel;
 import au.org.aodn.stac.model.ThemesModel;
@@ -18,6 +19,7 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -258,22 +260,15 @@ public class VocabServiceImpl implements VocabService {
         if (currentVocab.getReplacedBy() != null) return;
 
         // Check labels in priority order and add to results if a match is found
-        // the condition OR doesn't make multiple matches and adding all the thing while exploring down the branch because there is an order in OR || operator
-        // left-to-right order: https://stackoverflow.com/questions/17054737/does-all-evaluation-happen-from-left-to-right
-        // In Java, the || (logical OR) operator evaluates expressions from left to right and follows short-circuit evaluation
-        // so each comparision below is not randomly put in the if clause, we compare with prioritised order. Comparing displayLabel first, then AltLabels, then normal Label, and last to be HiddenLabels
         if (findAndAddMatch(Collections.singletonList(currentVocab.getDisplayLabel()), contactOrgs) ||
                 findAndAddMatch(currentVocab.getAltLabels(), contactOrgs) ||
                 findAndAddMatch(Collections.singletonList(currentVocab.getLabel()), contactOrgs) ||
                 findAndAddMatch(currentVocab.getHiddenLabels(), contactOrgs)) {
             log.info("Match found: {}", currentVocab);
             results.add(currentVocab);
-            return; // this will exist the loop
+            return;
         }
 
-        // continue to reach here if not being returned at line 236
-        // Recursively search narrower nodes
-        // when reaching here, the process is likely analysing vocabs at 2nd-level or 3rd-level vocabs
         List<VocabModel> narrowerNodes = currentVocab.getNarrower();
         if (narrowerNodes != null) {
             for (VocabModel narrowerNode : narrowerNodes) {
@@ -509,24 +504,12 @@ public class VocabServiceImpl implements VocabService {
             } catch (InterruptedException | IOException e) {
                 Thread.currentThread().interrupt();  // Restore interrupt status
                 log.error("Thread was interrupted while processing vocab tasks", e);
-            } finally {
-                shutdownExecutor(executorService);
             }
-        }, CompletableFuture.delayedExecutor(delay, TimeUnit.MINUTES, Executors.newSingleThreadExecutor()));
+        }, CompletableFuture.delayedExecutor(delay, TimeUnit.MINUTES));
     }
 
-    protected void shutdownExecutor(ExecutorService executor) {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    log.error("Executor did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+    @PreDestroy
+    protected void shutdown() {
+        CommonUtils.shutdownExecutor(executorService);
     }
 }

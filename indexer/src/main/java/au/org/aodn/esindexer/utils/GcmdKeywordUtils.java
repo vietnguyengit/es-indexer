@@ -1,6 +1,5 @@
 package au.org.aodn.esindexer.utils;
 
-import au.org.aodn.stac.model.ConceptModel;
 import au.org.aodn.stac.model.ThemesModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -9,15 +8,11 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static au.org.aodn.esindexer.utils.CommonUtils.safeGet;
 
 
 @Slf4j
@@ -43,16 +38,6 @@ public class GcmdKeywordUtils {
         return result;
     }
 
-
-    private static String readResourceFile(String path) throws IOException {
-        Resource resource = new ClassPathResource(path);
-        InputStream fStream = resource.getInputStream();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(fStream))) {
-            return reader.lines()
-                    .collect(Collectors.joining("\n"));
-        }
-    }
 
     // Load the CSV file into a HashMap
     private void loadCsvToMap(String path) {

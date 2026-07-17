@@ -2,7 +2,6 @@ package au.org.aodn.esindexer.batch;
 
 import au.org.aodn.esindexer.service.IndexerMetadataService;
 import au.org.aodn.esindexer.service.IndexCloudOptimizedService;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -48,12 +47,6 @@ class BatchJobRunnerTest {
     void runIndexAllCODataFromUuidMissingParamShouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> batchJobRunner.run("indexAllCODataFromUuid", null));
         assertTrue(ex.getMessage().contains("Job parameter (beginWithUuid) is required"));
-    }
-
-    @Test
-    void runIndexMetadataNotImplemented() {
-        Exception ex = assertThrows(org.apache.commons.lang3.NotImplementedException.class, () -> batchJobRunner.run("indexMetadata", null));
-        assertTrue(ex.getMessage().contains("IndexMetadata not yet implemented"));
     }
 
     @Test

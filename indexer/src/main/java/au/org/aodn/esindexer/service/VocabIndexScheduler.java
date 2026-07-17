@@ -4,13 +4,12 @@ import au.org.aodn.ardcvocabs.model.ArdcCurrentPaths;
 import au.org.aodn.ardcvocabs.service.ArdcVocabService;
 import au.org.aodn.esindexer.exception.IndexNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import java.util.Random;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -99,27 +98,9 @@ public class VocabIndexScheduler {
     }
 
     protected boolean checkVersionDiff() throws IOException {
-        for (ArdcCurrentPaths path : ArdcCurrentPaths.values()) {
-            if (path == ArdcCurrentPaths.PARAMETER_VOCAB) {
-                String docVer = getDocVersion(vocabService.getParameterVocabs());
-                if (!ardcVocabService.isVersionEquals(ArdcCurrentPaths.PARAMETER_VOCAB, docVer)) {
-                    return true;
-                }
-            }
-            else if (path == ArdcCurrentPaths.PLATFORM_VOCAB) {
-                String docVer = getDocVersion(vocabService.getPlatformVocabs());
-                if (!ardcVocabService.isVersionEquals(ArdcCurrentPaths.PLATFORM_VOCAB, docVer)) {
-                    return true;
-                }
-            }
-            else if (path == ArdcCurrentPaths.ORGANISATION_VOCAB) {
-                String docVer = getDocVersion(vocabService.getOrganisationVocabs());
-                if (!ardcVocabService.isVersionEquals(ArdcCurrentPaths.ORGANISATION_VOCAB, docVer)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return !ardcVocabService.isVersionEquals(ArdcCurrentPaths.PARAMETER_VOCAB, getDocVersion(vocabService.getParameterVocabs()))
+                || !ardcVocabService.isVersionEquals(ArdcCurrentPaths.PLATFORM_VOCAB, getDocVersion(vocabService.getPlatformVocabs()))
+                || !ardcVocabService.isVersionEquals(ArdcCurrentPaths.ORGANISATION_VOCAB, getDocVersion(vocabService.getOrganisationVocabs()));
     }
 
     protected void refreshCaches() {

@@ -2,7 +2,7 @@ package au.org.aodn.esindexer.batch;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -12,24 +12,22 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class CLIRunner implements CommandLineRunner {
+public class CLIRunner implements ApplicationRunner {
     public static final String BATCH = "batch";
     public static final String JOB_NAME = "jobName";
     public static final String JOB_PARAM = "jobParam";
 
     protected final BatchJobRunner batchJobRunner;
-    protected final ApplicationArguments args;
     protected final ConfigurableApplicationContext context;
 
     @Autowired
-    public CLIRunner(ApplicationArguments args, BatchJobRunner batchJobRunner, ConfigurableApplicationContext context) {
+    public CLIRunner(BatchJobRunner batchJobRunner, ConfigurableApplicationContext context) {
         this.batchJobRunner = batchJobRunner;
-        this.args = args;
         this.context = context;
     }
 
     @Override
-    public void run(String... rawArgs) throws Exception {
+    public void run(ApplicationArguments args) throws Exception {
 
         if (args.containsOption(BATCH)) {
             if (!args.containsOption(JOB_NAME) || args.getOptionValues(JOB_NAME).size() != 1) {

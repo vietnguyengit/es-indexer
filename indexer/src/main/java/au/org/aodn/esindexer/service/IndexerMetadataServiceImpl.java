@@ -622,7 +622,7 @@ public class IndexerMetadataServiceImpl extends IndexServiceImpl implements Inde
             }
         }
         finally {
-            shutdownExecutor(executor);
+            CommonUtils.shutdownExecutor(executor);
         }
 
         try {
@@ -720,18 +720,4 @@ public class IndexerMetadataServiceImpl extends IndexServiceImpl implements Inde
         }
     }
 
-    protected void shutdownExecutor(ExecutorService executor) {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    log.error("Executor did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
 }

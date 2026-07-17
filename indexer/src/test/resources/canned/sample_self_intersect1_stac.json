@@ -2,7 +2,7 @@
   "title" : "Southern Ocean diatom traits",
   "description" : "A compilation of existing literature on the characteristics of Southern Ocean diatom species.",
   "extent" : {
-    "bbox" : [ [ 180.0, -85.0511287798, 180.0, -60.0 ], [ -180.0, -85.0511287798, 180.0, -60.0 ] ],
+    "bbox" : [ [ -180.0, -85.0511287798, 180.0, -60.0 ], [ -180.0, -85.0511287798, 180.0, -60.0 ] ],
     "temporal" : [ [ "2021-07-30T14:00:00Z", null ], [ "2021-07-30T14:00:00Z", null ] ]
   },
   "summaries" : {

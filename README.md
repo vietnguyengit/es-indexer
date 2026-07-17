@@ -45,10 +45,11 @@ This project container 3 submodules:
 
 ### Docker
 
-Start a local instance of indexer
+Start a local instance of indexer (build the jar first)
 
 ```bash
-$ docker-compose -f docker-compose-dev.yaml up # [-d: in daemon mode | --build: to see the console logs]
+$ ./mvnw package -DskipTests
+$ docker-compose up # [-d: in daemon mode | --build: to rebuild the image]
 ```
 
 ### Endpoints:

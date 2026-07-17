@@ -29,10 +29,10 @@ public class ContactsAddressModel {
     @JsonIgnore
     public boolean isEmpty() {
         return (deliveryPoint == null || deliveryPoint.isEmpty() || deliveryPoint.stream().allMatch(String::isBlank))
-                && (city == null || city.isEmpty() || city.isBlank())
-                && (country == null || country.isEmpty() || country.isBlank())
-                && (postalCode == null || postalCode.isEmpty() || postalCode.isBlank())
-                && (administrativeArea == null || administrativeArea.isEmpty() || administrativeArea.isBlank());
+                && (city == null || city.isBlank())
+                && (country == null || country.isBlank())
+                && (postalCode == null || postalCode.isBlank())
+                && (administrativeArea == null || administrativeArea.isBlank());
     }
 
     @Override

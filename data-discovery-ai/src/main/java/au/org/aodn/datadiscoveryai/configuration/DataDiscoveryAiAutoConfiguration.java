@@ -41,11 +41,10 @@ public class DataDiscoveryAiAutoConfiguration {
             @Qualifier("dataDiscoveryAiWebClient") WebClient  webClient) {
 
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(30000); // 30 seconds
-        factory.setReadTimeout(60000);    // 60 seconds
+        factory.setConnectTimeout(30000);
+        factory.setReadTimeout(60000);
 
         RestTemplate restTemplate = new RestTemplate(factory);
-        // Add GZIP interceptor
         restTemplate.setInterceptors(Collections.singletonList(new GzipRequestResponseInterceptor(apiKey,internalKey)));
 
         return new DataDiscoveryAiServiceImpl(serviceUrl, baseUrl, restTemplate, webClient, objectMapper);

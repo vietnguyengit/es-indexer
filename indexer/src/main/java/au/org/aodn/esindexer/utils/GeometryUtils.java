@@ -20,10 +20,9 @@ import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class GeometryUtils {
 
@@ -101,17 +100,6 @@ public class GeometryUtils {
         catch(IOException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-    /**
-     * Although GeoJson point support 3D, however our target Elastic Search do not, so we need to use point2D plus
-     * a properties call depth.
-     * @param lng - lng
-     * @param lat - lat
-     * @return - The map that represent the geoJson
-     */
-    public static Map<?,?> createGeoShapeJson(BigDecimal lng, BigDecimal lat) {
-        Point point = factory.createPoint(new Coordinate(lng.doubleValue(), lat.doubleValue()));
-        return createGeoShapeJson(List.of(List.of(point)));
     }
     /**
      * @param polygons - Assume to be EPSG:4326, as GeoJson always use this encoding.
@@ -211,18 +199,6 @@ public class GeometryUtils {
         return factory.createPolygon(shell, holes);
     }
     /**
-     * Reverses the order of coordinates in an array.
-     * This method is used to reorder polygon vertices when they are not in
-     * the desired counterclockwise or clockwise order.
-     *
-     * @param coords Array of coordinates to be reversed.
-     * @return Array of coordinates in reversed order.
-     */
-    protected static Coordinate[] reverseCoordinates(Coordinate[] coords) {
-        CoordinateArrays.reverse(coords);
-        return coords;
-    }
-    /**
      * Special function to convert a MuliplePolygon to List<Geometry>
      * @param multipolygon - A multipolygon
      * @return - List of polygon the represent the incoming Multiple Polygon
@@ -273,10 +249,9 @@ public class GeometryUtils {
      * @return - The target item
      * @param <R> - Type that align with the handler return type
      */
-    public static <R, P> R createGeometryItems(
+    public static <R> R createGeometryItems(
             MDMetadataType source,
-            BiFunction<List<List<AbstractEXGeographicExtentType>>, P, R> handler,
-            P param) {
+            Function<List<List<AbstractEXGeographicExtentType>>, R> handler) {
 
         List<MDDataIdentificationType> items = MapperUtils.findMDDataIdentificationType(source);
         // Primary: MDDataIdentification; Fallback: SVServiceIdentification (e.g. GA records)
@@ -327,7 +302,7 @@ public class GeometryUtils {
                                     .toList()
                     )
                     .toList();
-            return handler.apply(rawInput, param);
+            return handler.apply(rawInput);
         }
         return null;
     }
@@ -345,7 +320,7 @@ public class GeometryUtils {
      * @param rawInput - The parsed XML block that contains the spatial extents area
      * @return - Centroid point which will not appear on land.
      */
-    public static Map<?, ?> createGeometryNoLandFrom(List<List<AbstractEXGeographicExtentType>> rawInput, Integer gridSize) {
+    public static Map<?, ?> createGeometryNoLandFrom(List<List<AbstractEXGeographicExtentType>> rawInput) {
         List<List<Geometry>> polygon = createGeometryWithoutLand(rawInput);
         return !polygon.isEmpty() ? createGeoShapeJson(polygon) : null;
     }
@@ -356,7 +331,7 @@ public class GeometryUtils {
      * @param rawInput - The parsed XML block that contains the spatial extents area
      * @return - Map that represent rawInput
      */
-    public static Map<?, ?> createGeometryFrom(List<List<AbstractEXGeographicExtentType>> rawInput, Integer gridSize) {
+    public static Map<?, ?> createGeometryFrom(List<List<AbstractEXGeographicExtentType>> rawInput) {
         // The return polygon is in EPSG:4326, so we can call createGeoJson directly
 
         // Un-remark this line and remark the line below if you want to visualize the polygon on map, change this

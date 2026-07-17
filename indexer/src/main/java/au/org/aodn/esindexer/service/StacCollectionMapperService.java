@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static au.org.aodn.esindexer.utils.CommonUtils.safeGet;
-import static au.org.aodn.esindexer.utils.StringUtil.capitalizeFirstLetter;
+import static org.springframework.util.StringUtils.capitalize;
 
 /**
  * This class transform the XML from GeoNetwork to STAC format and store it into Elastic-Search
@@ -97,11 +97,7 @@ public abstract class StacCollectionMapperService {
      */
     @Named("mapExtentBbox")
     List<List<BigDecimal>> mapExtentBbox(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                BBoxUtils::createBBoxFrom,
-                null
-        );
+        return GeometryUtils.createGeometryItems(source, BBoxUtils::createBBoxFrom);
     }
 
     @Named("mapExtentTemporal")
@@ -499,7 +495,11 @@ public abstract class StacCollectionMapperService {
             var type = safeGet(() -> ciDateType2.getDateType().getCIDateTypeCode().getCodeListValue());
             var date = safeGet(() -> ciDateType2.getDate().getDateTime());
             if (type.isPresent() && date.isPresent()) {
-                dateMap.put(GeoNetworkField.valueOf(type.get()), date.get().toString());
+                try {
+                    dateMap.put(GeoNetworkField.valueOf(type.get()), date.get().toString());
+                } catch (IllegalArgumentException e) {
+                    // dateType we do not track, e.g. lastUpdate or superseded
+                }
             }
         });
         return dateMap;
@@ -511,20 +511,12 @@ public abstract class StacCollectionMapperService {
      */
     @Named("mapSummaries.geometryNoland")
     Map<?,?> mapSummariesGeometryNoLand(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                GeometryUtils::createGeometryNoLandFrom,
-                10
-        );
+        return GeometryUtils.createGeometryItems(source, GeometryUtils::createGeometryNoLandFrom);
     }
 
     @Named("mapSummaries.geometry")
     Map<?,?> mapSummariesGeometry(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                GeometryUtils::createGeometryFrom,
-                10  // This is useful in testing/edge only.
-        );
+        return GeometryUtils.createGeometryItems(source, GeometryUtils::createGeometryFrom);
     }
 
     @Named("mapSummaries.status")
@@ -675,7 +667,7 @@ public abstract class StacCollectionMapperService {
             if (safeGet(() -> descriptiveKeyword.getMDKeywords().getThesaurusName()).isEmpty()) {
                 var type = safeGet(() -> descriptiveKeyword.getMDKeywords().getType().getMDKeywordTypeCode().getCodeListValue());
                 if (type.isPresent() && !type.get().isEmpty()) {
-                    title = String.format("Keywords (%s)", capitalizeFirstLetter(type.get()));
+                    title = String.format("Keywords (%s)", capitalize(type.get()));
                 }
             }
         }

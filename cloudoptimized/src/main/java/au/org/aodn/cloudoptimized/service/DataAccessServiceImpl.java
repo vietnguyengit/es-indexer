@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 @Slf4j
 public class DataAccessServiceImpl implements DataAccessService {
@@ -59,10 +59,9 @@ public class DataAccessServiceImpl implements DataAccessService {
         return this.accessEndPoint;
     }
 
-    // parameters are not in use for now. May be useful in the future so just keep it
-    protected HttpEntity<String> getRequestEntity(List<MediaType> accept) {
+    protected HttpEntity<String> getRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(accept);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         return new HttpEntity<>(headers);
     }
 
@@ -114,7 +113,7 @@ public class DataAccessServiceImpl implements DataAccessService {
             // Sometimes the server is down due to SPOT instance or software update.
             waitTillServiceUp();
 
-            HttpEntity<String> request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+            HttpEntity<String> request = getRequestEntity();
 
             String url = UriComponentsBuilder
                     .fromUriString(getDataAccessEndpoint() + "/metadata/{uuid}")
@@ -150,7 +149,7 @@ public class DataAccessServiceImpl implements DataAccessService {
     public Map<String, Map<String, MetadataEntity>> getAllMetadata() {
 
         try {
-            HttpEntity<String> request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+            HttpEntity<String> request = getRequestEntity();
             String url = UriComponentsBuilder
                     .fromUriString(getDataAccessEndpoint() + "/metadata")
                     .toUriString();
@@ -179,7 +178,7 @@ public class DataAccessServiceImpl implements DataAccessService {
 
     @Override
     public HealthStatus getHealthStatus() {
-        HttpEntity<String> request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+        HttpEntity<String> request = getRequestEntity();
         String url = UriComponentsBuilder
                 .fromUriString(getDataAccessEndpoint() + "/health")
                 .toUriString();
@@ -201,7 +200,7 @@ public class DataAccessServiceImpl implements DataAccessService {
     @Override
     public Optional<String> getNotebookLink(String uuid) {
         try {
-            HttpEntity<String> request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+            HttpEntity<String> request = getRequestEntity();
 
             String url = UriComponentsBuilder
                     .fromUriString(getDataAccessEndpoint() + "/data/{uuid}/notebook_url")
@@ -263,10 +262,8 @@ public class DataAccessServiceImpl implements DataAccessService {
                                     .retrieve()
                                     .bodyToFlux(String.class)
                     )
-                    .filter(data -> data.contains("data")) // Filter for data: lines
-                    .map(data -> {
+                    .filter(data -> data.contains("data"))                    .map(data -> {
                         try {
-                            // Deserialize raw event into SSEEvent
                             return objectMapper.readValue(data, new TypeReference<SSEEvent<List<CloudOptimizedEntryReducePrecision>>>() {});
                         } catch (JsonProcessingException e) {
                             log.error("Failed to parse SSE event: {}, Error: {}", data.substring(0, Math.min(100, data.length())), e.getMessage());
@@ -368,18 +365,16 @@ public class DataAccessServiceImpl implements DataAccessService {
                     eventDataList.addAll(eventData);
                 }
             } catch (Exception e) {
-                // Handle exceptions from parallel tasks
                 throw new RuntimeException("Exception in parallel data fetching: " + e.getMessage(), e);
             }
         }
         // Note: do not shutdown here; executorService is long-lived and cleaned in @PreDestroy
-        // Merge all the entities
         final Map<CloudOptimizedEntry, Long> allEntries = new HashMap<>();
         aggregateData(allEntries, eventDataList);
         return toFeatureCollection(uuid, key, allEntries);
     }
 
-    protected void shutdownExecutor(ExecutorService executor) {
+    public static void shutdownExecutor(ExecutorService executor) {
         executor.shutdown();
         try {
             if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
@@ -404,7 +399,7 @@ public class DataAccessServiceImpl implements DataAccessService {
         if(isSafeId(uuid)) {
             log.info("Fetching temporal extent of UUID: {}, {}", uuid, key);
             try {
-                HttpEntity<String> request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+                HttpEntity<String> request = getRequestEntity();
 
                 String url = UriComponentsBuilder.fromUriString(getDataAccessEndpoint() + "/data/{uuid}/{key}/temporal_extent")
                         .buildAndExpand(uuid, key)
@@ -462,15 +457,10 @@ public class DataAccessServiceImpl implements DataAccessService {
 
     @Override
     public void waitTillServiceUp() {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
         try {
-            do {
-                if(this.getHealthStatus() == HealthStatus.UP) {
-                    countDownLatch.countDown();
-                }
+            while (this.getHealthStatus() != HealthStatus.UP) {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(30));
             }
-            while(!countDownLatch.await(30, TimeUnit.SECONDS));
         }
         catch (Exception ignored) {}
     }
@@ -490,7 +480,7 @@ public class DataAccessServiceImpl implements DataAccessService {
                 .buildAndExpand(uuid, key)
                 .toUriString();
 
-        var request = getRequestEntity(List.of(MediaType.APPLICATION_JSON));
+        var request = getRequestEntity();
 
         ResponseEntity<FeatureCollectionGeoJson> responseEntity = restTemplate.exchange(
                 url,

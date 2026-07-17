@@ -98,28 +98,6 @@ public class GeometryBaseTest {
     }
 
     @Test
-    public void testReverseCoordinates() {
-        Coordinate[] coords = new Coordinate[] {
-                new Coordinate(0, 0),
-                new Coordinate(1, 0),
-                new Coordinate(1, 1),
-                new Coordinate(0, 1),
-                new Coordinate(0, 0)
-        };
-
-        Coordinate[] expectedReversedCoords = new Coordinate[] {
-                new Coordinate(0, 0),
-                new Coordinate(0, 1),
-                new Coordinate(1, 1),
-                new Coordinate(1, 0),
-                new Coordinate(0, 0)
-        };
-
-        Coordinate[] reversedCoords = GeometryUtils.reverseCoordinates(coords);
-        assertArrayEquals(expectedReversedCoords, reversedCoords);
-    }
-
-    @Test
     public void testEnsureCounterClockwise1() {
         // A clockwise polygon
         Coordinate[] cwCoords = new Coordinate[] {

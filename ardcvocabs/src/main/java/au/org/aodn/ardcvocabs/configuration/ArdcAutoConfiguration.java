@@ -14,16 +14,11 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 @AutoConfiguration
 @ConditionalOnMissingBean(ArdcVocabService.class)
-@EnableRetry  // Enable retry support
+@EnableRetry
 public class ArdcAutoConfiguration {
-
-    protected CountDownLatch limit = new CountDownLatch(1);
 
     @Bean
     public ArdcVocabService createArdcVocabsService(RetryTemplate retryTemplate) {
@@ -44,12 +39,12 @@ public class ArdcAutoConfiguration {
             return execution.execute(request, body);
         });
 
-        // Add delay before every request (most effective simple fix)
+        // Delay before every request to stay under the remote rate limit
         template.getInterceptors().add((request, body, execution) -> {
             try {
-                limit.await(800, TimeUnit.MILLISECONDS); // 1 seconds – adjust based on observed limits
+                Thread.sleep(800);
             } catch (InterruptedException e) {
-                // Ignore
+                Thread.currentThread().interrupt();
             }
             return execution.execute(request, body);
         });

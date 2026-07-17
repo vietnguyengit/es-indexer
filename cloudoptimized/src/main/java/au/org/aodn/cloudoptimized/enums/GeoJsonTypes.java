@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public enum GeoJsonTypes {
     FEATURE_COLLECTION("FeatureCollection"),
-    FEATURE("Feature"),
     ;
 
     private final String value;

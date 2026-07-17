@@ -1,7 +1,5 @@
 package au.org.aodn.esindexer.utils;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.locationtech.jts.geom.Envelope;
@@ -38,9 +36,7 @@ public class StacUtils {
 
     protected static Logger logger = LogManager.getLogger(StacUtils.class);
 
-    @Setter
-    @Getter
-    protected static int scale = 10;
+    private static final int SCALE = 10;
 
     /**
      * Create list of bbox, where the first one is the overall bbox
@@ -60,9 +56,15 @@ public class StacUtils {
                             // of STAC to have an overall bounding box of all smaller area as the first bbox in the list.
                             if (polygon != null && polygon.getEnvelopeInternal() != null) {
                                 Envelope env = polygon.getEnvelopeInternal();
-                                // Normalize longitudes to [0, 360]
-                                double minX = env.getMinX() < 0 ? env.getMinX() + 360.0 : env.getMinX();
-                                double maxX = env.getMaxX() < 0 ? env.getMaxX() + 360.0 : env.getMaxX();
+                                // Shift envelopes that sit entirely west of the antimeridian to [180, 360],
+                                // so a box split across the antimeridian unions into one continuous range.
+                                // Envelopes crossing longitude 0 must stay as-is or they flip direction.
+                                double minX = env.getMinX();
+                                double maxX = env.getMaxX();
+                                if (maxX < 0) {
+                                    minX += 360.0;
+                                    maxX += 360.0;
+                                }
                                 Envelope normalizedEnv = new Envelope(minX, maxX, env.getMinY(), env.getMaxY());
                                 overallBoundingBox.expandToInclude(normalizedEnv);
 
@@ -76,19 +78,26 @@ public class StacUtils {
             if(hasBoundingBoxUpdate.get()) {
                 double minX = overallBoundingBox.getMinX();
                 double maxX = overallBoundingBox.getMaxX();
-                // Shift to [-180, 180]
-                if (minX > 180.0) minX -= 360.0;
-                if (maxX > 180.0) maxX -= 360.0;
-                // Ensure maxX >= minX, result can be > 180 but needed as we need to represent box cross
-                // meridian, if you do not allow it you may have bbox longitude flipped in wrong direction
-                if (maxX < minX) maxX += 360.0;
+                if (maxX - minX >= 360.0) {
+                    // Union wraps the whole planet, collapse to the global box
+                    minX = -180.0;
+                    maxX = 180.0;
+                }
+                else {
+                    // Shift to [-180, 180]
+                    if (minX > 180.0) minX -= 360.0;
+                    if (maxX > 180.0) maxX -= 360.0;
+                    // Ensure maxX >= minX, result can be > 180 but needed as we need to represent box cross
+                    // meridian, if you do not allow it you may have bbox longitude flipped in wrong direction
+                    if (maxX < minX) maxX += 360.0;
+                }
                 overallBoundingBox.init(minX, maxX, overallBoundingBox.getMinY(), overallBoundingBox.getMaxY());
 
                 result.add(List.of(
-                        BigDecimal.valueOf(overallBoundingBox.getMinX()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMinY()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMaxX()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMaxY()).setScale(scale, RoundingMode.HALF_UP)));
+                        BigDecimal.valueOf(overallBoundingBox.getMinX()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMinY()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMaxX()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMaxY()).setScale(SCALE, RoundingMode.HALF_UP)));
 
                 for (List<Geometry> polygons : listOfPolygons) {
 
@@ -100,10 +109,10 @@ public class StacUtils {
                                 individualEnvelope.expandToInclude(p.getEnvelopeInternal());
                             }
                             result.add(List.of(
-                                    BigDecimal.valueOf(individualEnvelope.getMinX()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMinY()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMaxX()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMaxY()).setScale(scale, RoundingMode.HALF_UP)));
+                                    BigDecimal.valueOf(individualEnvelope.getMinX()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMinY()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMaxX()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMaxY()).setScale(SCALE, RoundingMode.HALF_UP)));
                         }
                     }
                 }
