@@ -327,6 +327,8 @@ public class IndexerController {
 
         executor.submit(msg);
         executor.submit(task);
+        // Let submitted tasks finish, then release the pool threads
+        executor.shutdown();
 
         return emitter;
     }
