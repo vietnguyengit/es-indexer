@@ -24,7 +24,10 @@ public class SummariesUtils {
                 // status
                 // mdb:identificationInfo/mri:MD_DataIdentification/mri:status/mcc:MD_ProgressCode/@codeListValue
                 for (MDProgressCodePropertyType s : i.getStatus()) {
-                    temp.add(s.getMDProgressCode().getCodeListValue());
+                    // An empty <mri:status/> element has no progress code
+                    if (s.getMDProgressCode() != null) {
+                        temp.add(s.getMDProgressCode().getCodeListValue());
+                    }
                 }
             }
             return String.join(" | ", temp);
