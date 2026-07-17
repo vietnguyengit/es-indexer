@@ -259,20 +259,15 @@ public class VocabServiceImpl implements VocabService {
         if (currentVocab.getReplacedBy() != null) return;
 
         // Check labels in priority order and add to results if a match is found
-        // the condition OR doesn't make multiple matches and adding all the thing while exploring down the branch because there is an order in OR || operator
-        // left-to-right order: https://stackoverflow.com/questions/17054737/does-all-evaluation-happen-from-left-to-right
-        // In Java, the || (logical OR) operator evaluates expressions from left to right and follows short-circuit evaluation
-        // so each comparision below is not randomly put in the if clause, we compare with prioritised order. Comparing displayLabel first, then AltLabels, then normal Label, and last to be HiddenLabels
         if (findAndAddMatch(Collections.singletonList(currentVocab.getDisplayLabel()), contactOrgs) ||
                 findAndAddMatch(currentVocab.getAltLabels(), contactOrgs) ||
                 findAndAddMatch(Collections.singletonList(currentVocab.getLabel()), contactOrgs) ||
                 findAndAddMatch(currentVocab.getHiddenLabels(), contactOrgs)) {
             log.info("Match found: {}", currentVocab);
             results.add(currentVocab);
-            return; // this will exist the loop
+            return;
         }
 
-        // continue to reach here if not being returned at line 236
         // Recursively search narrower nodes
         // when reaching here, the process is likely analysing vocabs at 2nd-level or 3rd-level vocabs
         List<VocabModel> narrowerNodes = currentVocab.getNarrower();

@@ -368,12 +368,10 @@ public class DataAccessServiceImpl implements DataAccessService {
                     eventDataList.addAll(eventData);
                 }
             } catch (Exception e) {
-                // Handle exceptions from parallel tasks
                 throw new RuntimeException("Exception in parallel data fetching: " + e.getMessage(), e);
             }
         }
         // Note: do not shutdown here; executorService is long-lived and cleaned in @PreDestroy
-        // Merge all the entities
         final Map<CloudOptimizedEntry, Long> allEntries = new HashMap<>();
         aggregateData(allEntries, eventDataList);
         return toFeatureCollection(uuid, key, allEntries);

@@ -30,24 +30,20 @@ public class GzipRequestResponseInterceptor implements ClientHttpRequestIntercep
     @NonNull
     @Override
     public ClientHttpResponse intercept(HttpRequest request, @NonNull byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        // Add default headers
         HttpHeaders headers = request.getHeaders();
         headers.addAll(defaultHeaders);
 
         // Only compress if body is not empty
         byte[] compressedBody = body;
         if (body.length > 0) {
-            // Compress request body
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream)) {
                 gzipStream.write(body);
             }
             compressedBody = byteStream.toByteArray();
-            // Add Content-Encoding header to indicate the body is GZIP compressed
             headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
         }
 
-        // Execute request with compressed body
         ClientHttpResponse response = execution.execute(request, compressedBody);
 
         // Decompress response if GZIP-encoded
