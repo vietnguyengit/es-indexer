@@ -45,4 +45,41 @@ public class StacUtilsTest {
         );
         assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
     }
+
+    @Test
+    public void testCreateStacBBoxCrossingLongitudeZero() {
+        GeometryFactory factory = new GeometryFactory();
+        List<List<Geometry>> inputPolygons = Collections.singletonList(
+                Collections.singletonList(factory.toGeometry(new Envelope(-10.0, 10.0, -20.0, 20.0)))
+        );
+
+        List<List<BigDecimal>> result = StacUtils.createStacBBox(inputPolygons);
+
+        // A box crossing longitude 0 must keep its shape, not flip to the far side of the planet
+        List<BigDecimal> expectedOverall = Arrays.asList(
+                BigDecimal.valueOf(-10.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(-20.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(10.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(20.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP)
+        );
+        assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
+    }
+
+    @Test
+    public void testCreateStacBBoxGlobalExtent() {
+        GeometryFactory factory = new GeometryFactory();
+        List<List<Geometry>> inputPolygons = Collections.singletonList(
+                Collections.singletonList(factory.toGeometry(new Envelope(-180.0, 180.0, -90.0, 90.0)))
+        );
+
+        List<List<BigDecimal>> result = StacUtils.createStacBBox(inputPolygons);
+
+        List<BigDecimal> expectedOverall = Arrays.asList(
+                BigDecimal.valueOf(-180.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(-90.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(180.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
+                BigDecimal.valueOf(90.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP)
+        );
+        assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
+    }
 }
