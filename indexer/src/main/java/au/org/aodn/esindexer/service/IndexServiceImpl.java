@@ -64,6 +64,7 @@ public abstract class IndexServiceImpl implements IndexService {
         }
 
         Optional<BulkResponse> processItem(String id, T item, boolean skipIndividualReport) throws IOException {
+            Optional<BulkResponse> result = Optional.empty();
             if(item != null) {
                 int size = indexerObjectMapper.writeValueAsBytes(item).length;
 
@@ -83,12 +84,10 @@ public abstract class IndexServiceImpl implements IndexService {
                         callback.onProgress(String.format("Execute batch as bulk request is big enough %s", dataSize + size));
                     }
 
-                    Optional<BulkResponse> result = Optional.of(reduceResponse(proxyImpl.executeBulk(bulkRequest.build(), mapper, callback)));
+                    result = Optional.of(reduceResponse(proxyImpl.executeBulk(bulkRequest.build(), mapper, callback)));
 
                     dataSize = 0;
                     bulkRequest = new BulkRequest.Builder();
-
-                    return result;
                 }
                 // Add item to  bulk request to Elasticsearch
                 bulkRequest.operations(op -> op
@@ -111,7 +110,7 @@ public abstract class IndexServiceImpl implements IndexService {
                     );
                 }
             }
-            return Optional.empty();
+            return result;
         }
 
         Optional<BulkResponse> flush() throws IOException {
