@@ -97,11 +97,7 @@ public abstract class StacCollectionMapperService {
      */
     @Named("mapExtentBbox")
     List<List<BigDecimal>> mapExtentBbox(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                BBoxUtils::createBBoxFrom,
-                null
-        );
+        return GeometryUtils.createGeometryItems(source, BBoxUtils::createBBoxFrom);
     }
 
     @Named("mapExtentTemporal")
@@ -515,20 +511,12 @@ public abstract class StacCollectionMapperService {
      */
     @Named("mapSummaries.geometryNoland")
     Map<?,?> mapSummariesGeometryNoLand(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                GeometryUtils::createGeometryNoLandFrom,
-                10
-        );
+        return GeometryUtils.createGeometryItems(source, GeometryUtils::createGeometryNoLandFrom);
     }
 
     @Named("mapSummaries.geometry")
     Map<?,?> mapSummariesGeometry(MDMetadataType source) {
-        return GeometryUtils.createGeometryItems(
-                source,
-                GeometryUtils::createGeometryFrom,
-                10  // This is useful in testing/edge only.
-        );
+        return GeometryUtils.createGeometryItems(source, GeometryUtils::createGeometryFrom);
     }
 
     @Named("mapSummaries.status")

@@ -2,7 +2,6 @@ package au.org.aodn.metadata.geonetwork.service;
 
 import au.org.aodn.metadata.geonetwork.configuration.AppConstants;
 import au.org.aodn.metadata.geonetwork.exception.MetadataNotFoundException;
-import au.org.aodn.metadata.geonetwork.utils.CommonUtils;
 import au.org.aodn.metadata.geonetwork.utils.UrlUtils;
 import au.org.aodn.stac.model.LinkModel;
 import au.org.aodn.stac.model.RelationType;
@@ -36,6 +35,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -47,6 +47,8 @@ public class GeoNetworkServiceImpl implements GeoNetworkService {
     public static final String URL = "url";
 
     protected static final long DEFAULT_BACKOFF_TIME = 3000L;
+
+    public static final MediaType MEDIA_UTF8_XML = new MediaType("application", "xml", StandardCharsets.UTF_8);
 
     protected static final Logger logger = LogManager.getLogger(GeoNetworkServiceImpl.class);
 
@@ -79,8 +81,8 @@ public class GeoNetworkServiceImpl implements GeoNetworkService {
 
     protected HttpEntity<String> getRequestEntity(MediaType accept, String body) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(accept == null ? CommonUtils.MEDIA_UTF8_XML : accept));
-        headers.setContentType(CommonUtils.MEDIA_UTF8_XML);
+        headers.setAccept(Collections.singletonList(accept == null ? MEDIA_UTF8_XML : accept));
+        headers.setContentType(MEDIA_UTF8_XML);
 
         return body == null ? new HttpEntity<>(headers) : new HttpEntity<>(body, headers);
     }

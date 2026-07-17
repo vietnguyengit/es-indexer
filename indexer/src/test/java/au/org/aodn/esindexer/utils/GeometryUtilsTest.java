@@ -38,8 +38,7 @@ public class GeometryUtilsTest {
         // Whole spatial extends
         List<List<Geometry>> withLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, size) -> GeometryBase.findPolygonsFrom(GeometryBase.COORDINATE_SYSTEM_CRS84, rawInput),
-                null
+                rawInput -> GeometryBase.findPolygonsFrom(GeometryBase.COORDINATE_SYSTEM_CRS84, rawInput)
         );
 
         List<List<Geometry>> l = Objects.requireNonNull(withLand);
@@ -64,8 +63,7 @@ public class GeometryUtilsTest {
         // Strip the land away.
         List<List<Geometry>> noLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, s) -> GeometryUtils.createGeometryWithoutLand(rawInput),
-                null
+                rawInput -> GeometryUtils.createGeometryWithoutLand(rawInput)
         );
 
         List<List<Geometry>> nl = Objects.requireNonNull(noLand);
@@ -108,8 +106,7 @@ public class GeometryUtilsTest {
         // Strip the land away.
         List<List<Geometry>> noLand = GeometryUtils.createGeometryItems(
                 source,
-                (rawInput, s) -> GeometryUtils.createGeometryWithoutLand(rawInput),
-                null
+                rawInput -> GeometryUtils.createGeometryWithoutLand(rawInput)
         );
 
         List<List<Geometry>> nl = Objects.requireNonNull(noLand);

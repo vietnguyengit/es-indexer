@@ -22,7 +22,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class GeometryUtils {
 
@@ -249,10 +249,9 @@ public class GeometryUtils {
      * @return - The target item
      * @param <R> - Type that align with the handler return type
      */
-    public static <R, P> R createGeometryItems(
+    public static <R> R createGeometryItems(
             MDMetadataType source,
-            BiFunction<List<List<AbstractEXGeographicExtentType>>, P, R> handler,
-            P param) {
+            Function<List<List<AbstractEXGeographicExtentType>>, R> handler) {
 
         List<MDDataIdentificationType> items = MapperUtils.findMDDataIdentificationType(source);
         // Primary: MDDataIdentification; Fallback: SVServiceIdentification (e.g. GA records)
@@ -303,7 +302,7 @@ public class GeometryUtils {
                                     .toList()
                     )
                     .toList();
-            return handler.apply(rawInput, param);
+            return handler.apply(rawInput);
         }
         return null;
     }
@@ -321,7 +320,7 @@ public class GeometryUtils {
      * @param rawInput - The parsed XML block that contains the spatial extents area
      * @return - Centroid point which will not appear on land.
      */
-    public static Map<?, ?> createGeometryNoLandFrom(List<List<AbstractEXGeographicExtentType>> rawInput, Integer gridSize) {
+    public static Map<?, ?> createGeometryNoLandFrom(List<List<AbstractEXGeographicExtentType>> rawInput) {
         List<List<Geometry>> polygon = createGeometryWithoutLand(rawInput);
         return !polygon.isEmpty() ? createGeoShapeJson(polygon) : null;
     }
@@ -332,7 +331,7 @@ public class GeometryUtils {
      * @param rawInput - The parsed XML block that contains the spatial extents area
      * @return - Map that represent rawInput
      */
-    public static Map<?, ?> createGeometryFrom(List<List<AbstractEXGeographicExtentType>> rawInput, Integer gridSize) {
+    public static Map<?, ?> createGeometryFrom(List<List<AbstractEXGeographicExtentType>> rawInput) {
         // The return polygon is in EPSG:4326, so we can call createGeoJson directly
 
         // Un-remark this line and remark the line below if you want to visualize the polygon on map, change this

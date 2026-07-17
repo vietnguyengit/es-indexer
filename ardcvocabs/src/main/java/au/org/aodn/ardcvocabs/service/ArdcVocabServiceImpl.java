@@ -39,12 +39,16 @@ public class ArdcVocabServiceImpl implements ArdcVocabService {
             // Fetch current contents
             ObjectNode categoryCurrentContent = fetchCurrentContents(currentPath.getCategoryCurrent());
             ObjectNode vocabCurrentContent = fetchCurrentContents(currentPath.getVocabCurrent());
-            validateContentNotNull(currentPath, categoryCurrentContent, vocabCurrentContent);
+            if (categoryCurrentContent == null || vocabCurrentContent == null) {
+                throw new ExtractingPathVersionsException(String.format("Failed to fetch HTML content for %s", currentPath.name()));
+            }
 
             // Extract versions
             String categoryVersion = extractVersionFromCurrentContent(categoryCurrentContent);
             String vocabVersion = extractVersionFromCurrentContent(vocabCurrentContent);
-            validateVersionsNotNull(currentPath, categoryVersion, vocabVersion);
+            if (categoryVersion == null || vocabVersion == null) {
+                throw new ExtractingPathVersionsException(String.format("Version extraction returned null for %s", currentPath.name()));
+            }
 
             log.info("Fetched ARDC category version for {}: {}", currentPath.name(), categoryVersion);
             log.info("Fetched ARDC vocab version for {}: {}", currentPath.name(), vocabVersion);
@@ -55,18 +59,6 @@ public class ArdcVocabServiceImpl implements ArdcVocabService {
         } catch (Exception e) {
             log.error("Error initialising versions for {}: {}", currentPath.name(), e.getMessage(), e);
             throw new ExtractingPathVersionsException(String.format("Error initialising versions for %s: %s", currentPath.name(), e.getMessage()));
-        }
-    }
-
-    protected void validateContentNotNull(ArdcCurrentPaths currentPath, ObjectNode categoryContent, ObjectNode vocabContent) {
-        if (categoryContent == null || vocabContent == null) {
-            throw new ExtractingPathVersionsException(String.format("Failed to fetch HTML content for %s", currentPath.name()));
-        }
-    }
-
-    protected void validateVersionsNotNull(ArdcCurrentPaths currentPath, String categoryVersion, String vocabVersion) {
-        if (categoryVersion == null || vocabVersion == null) {
-            throw new ExtractingPathVersionsException(String.format("Version extraction returned null for %s", currentPath.name()));
         }
     }
 
@@ -85,16 +77,13 @@ public class ArdcVocabServiceImpl implements ArdcVocabService {
     }
 
     protected Map<Name, String> buildResolvedPaths(ArdcCurrentPaths currentPaths, String categoryVersion, String vocabVersion) {
+        VocabApiPaths vocabApiPath = currentPaths.getVocabApiPaths();
         Map<Name, String> resolvedPaths = new HashMap<>();
-        for (VocabApiPaths vocabApiPath : VocabApiPaths.values()) {
-            if (currentPaths.name().equals(vocabApiPath.name())) {
-                resolvedPaths.put(Name.version, categoryVersion + "/" + vocabVersion);
-                resolvedPaths.put(Name.categoryApi, String.format(vocabApiPath.getCategoryApiTemplate(), categoryVersion));
-                resolvedPaths.put(Name.categoryDetailsApi, String.format(vocabApiPath.getCategoryDetailsTemplate(), categoryVersion, "%s"));
-                resolvedPaths.put(Name.vocabApi, String.format(vocabApiPath.getVocabApiTemplate(), vocabVersion));
-                resolvedPaths.put(Name.vocabDetailsApi, String.format(vocabApiPath.getVocabDetailsTemplate(), vocabVersion, "%s"));
-            }
-        }
+        resolvedPaths.put(Name.version, categoryVersion + "/" + vocabVersion);
+        resolvedPaths.put(Name.categoryApi, String.format(vocabApiPath.getCategoryApiTemplate(), categoryVersion));
+        resolvedPaths.put(Name.categoryDetailsApi, String.format(vocabApiPath.getCategoryDetailsTemplate(), categoryVersion, "%s"));
+        resolvedPaths.put(Name.vocabApi, String.format(vocabApiPath.getVocabApiTemplate(), vocabVersion));
+        resolvedPaths.put(Name.vocabDetailsApi, String.format(vocabApiPath.getVocabDetailsTemplate(), vocabVersion, "%s"));
         return resolvedPaths;
     }
 

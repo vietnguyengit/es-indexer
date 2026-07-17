@@ -2,7 +2,7 @@ package au.org.aodn.esindexer;
 
 import au.org.aodn.esindexer.configuration.GeoNetworkSearchTestConfig;
 import au.org.aodn.esindexer.service.VocabServiceImpl;
-import au.org.aodn.metadata.geonetwork.utils.CommonUtils;
+import au.org.aodn.metadata.geonetwork.service.GeoNetworkServiceImpl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
@@ -18,7 +18,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestClientException;
 import org.testcontainers.containers.ComposeContainer;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +105,7 @@ public class BaseTestClass {
         HttpHeaders headers = new HttpHeaders();
 
         headers.setAccept(List.of(MediaType.APPLICATION_JSON, MediaType.ALL, MediaType.TEXT_PLAIN));
-        headers.setContentType(contentType == null ? CommonUtils.MEDIA_UTF8_XML : contentType);
+        headers.setContentType(contentType == null ? GeoNetworkServiceImpl.MEDIA_UTF8_XML : contentType);
         headers.setCacheControl(CacheControl.empty());
 
         headers.add(HttpHeaders.USER_AGENT, "TestRestTemplate");

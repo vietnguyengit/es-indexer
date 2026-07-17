@@ -12,7 +12,7 @@ public class BBoxUtils {
 
     protected static Logger logger = LogManager.getLogger(BBoxUtils.class);
 
-    public static List<List<BigDecimal>> createBBoxFrom(List<List<AbstractEXGeographicExtentType>> rawInput, final Integer noUse) {
+    public static List<List<BigDecimal>> createBBoxFrom(List<List<AbstractEXGeographicExtentType>> rawInput) {
         //TODO: avoid hardcode CRS, get it from document
         List<List<Geometry>> polygons = GeometryBase.findPolygonsFrom(GeometryBase.COORDINATE_SYSTEM_CRS84, rawInput);
         return StacUtils.createStacBBox(polygons);

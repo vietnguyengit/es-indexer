@@ -2,6 +2,7 @@ package au.org.aodn.cloudoptimized.model;
 
 import au.org.aodn.cloudoptimized.model.geojson.FeatureCollectionGeoJson;
 import au.org.aodn.cloudoptimized.service.DataAccessService;
+import au.org.aodn.cloudoptimized.service.DataAccessServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,22 +85,7 @@ public class DatasetProvider {
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error while fetching data", e);
         } finally {
-            shutdownExecutor(executorService);
-        }
-    }
-
-    protected void shutdownExecutor(ExecutorService executor) {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    log.error("Executor did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
+            DataAccessServiceImpl.shutdownExecutor(executorService);
         }
     }
     /**

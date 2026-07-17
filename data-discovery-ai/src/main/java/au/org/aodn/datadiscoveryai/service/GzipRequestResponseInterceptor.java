@@ -8,11 +8,9 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.lang.NonNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class GzipRequestResponseInterceptor implements ClientHttpRequestInterceptor {
 
@@ -33,18 +31,9 @@ public class GzipRequestResponseInterceptor implements ClientHttpRequestIntercep
         HttpHeaders headers = request.getHeaders();
         headers.addAll(defaultHeaders);
 
-        // Only compress if body is not empty
-        byte[] compressedBody = body;
-        if (body.length > 0) {
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream)) {
-                gzipStream.write(body);
-            }
-            compressedBody = byteStream.toByteArray();
-            headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
-        }
-
-        ClientHttpResponse response = execution.execute(request, compressedBody);
+        // This template only sends body-less GETs (health check); the AI POST goes through WebClient,
+        // so there is no request body to compress here.
+        ClientHttpResponse response = execution.execute(request, body);
 
         // Decompress response if GZIP-encoded
         if ("gzip".equalsIgnoreCase(response.getHeaders().getFirst(HttpHeaders.CONTENT_ENCODING))) {

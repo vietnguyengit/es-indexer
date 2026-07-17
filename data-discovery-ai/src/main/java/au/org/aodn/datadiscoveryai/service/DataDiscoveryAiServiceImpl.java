@@ -153,20 +153,18 @@ public class DataDiscoveryAiServiceImpl implements DataDiscoveryAiService {
 
     @Override
     public String getEnhancedDescription(AiEnhancementResponse aiResponse) {
-        if (aiResponse != null && aiResponse.getSummaries() != null
-                && aiResponse.getSummaries().containsKey(AiEnhancementSummaryField.AI_DESCRIPTION.getFieldName())) {
-            return Optional.ofNullable(aiResponse.getSummaries().get(AiEnhancementSummaryField.AI_DESCRIPTION.getFieldName()))
-                    .map(JsonNode::asText)
-                    .orElse(null);
-        }
-        return null;
+        return getSummaryField(aiResponse, AiEnhancementSummaryField.AI_DESCRIPTION);
     }
 
     @Override
     public String getEnhancedUpdateFrequency(AiEnhancementResponse aiResponse) {
+        return getSummaryField(aiResponse, AiEnhancementSummaryField.AI_UPDATE_FREQUENCY);
+    }
+
+    private String getSummaryField(AiEnhancementResponse aiResponse, AiEnhancementSummaryField field) {
         if (aiResponse != null && aiResponse.getSummaries() != null
-                && aiResponse.getSummaries().containsKey(AiEnhancementSummaryField.AI_UPDATE_FREQUENCY.getFieldName())) {
-            return Optional.ofNullable(aiResponse.getSummaries().get(AiEnhancementSummaryField.AI_UPDATE_FREQUENCY.getFieldName()))
+                && aiResponse.getSummaries().containsKey(field.getFieldName())) {
+            return Optional.ofNullable(aiResponse.getSummaries().get(field.getFieldName()))
                     .map(JsonNode::asText)
                     .orElse(null);
         }

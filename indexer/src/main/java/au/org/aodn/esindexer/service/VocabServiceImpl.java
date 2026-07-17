@@ -5,6 +5,7 @@ import au.org.aodn.ardcvocabs.service.ArdcVocabService;
 import au.org.aodn.esindexer.configuration.AppConstants;
 import au.org.aodn.esindexer.exception.DocumentNotFoundException;
 import au.org.aodn.esindexer.exception.IgnoreIndexingVocabsException;
+import au.org.aodn.esindexer.utils.CommonUtils;
 import au.org.aodn.stac.model.ConceptModel;
 import au.org.aodn.stac.model.ContactsModel;
 import au.org.aodn.stac.model.ThemesModel;
@@ -511,21 +512,6 @@ public class VocabServiceImpl implements VocabService {
 
     @PreDestroy
     protected void shutdown() {
-        shutdownExecutor(executorService);
-    }
-
-    protected void shutdownExecutor(ExecutorService executor) {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-                if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    log.error("Executor did not terminate");
-                }
-            }
-        } catch (InterruptedException ie) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        CommonUtils.shutdownExecutor(executorService);
     }
 }
