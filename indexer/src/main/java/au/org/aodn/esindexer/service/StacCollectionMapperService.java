@@ -499,7 +499,11 @@ public abstract class StacCollectionMapperService {
             var type = safeGet(() -> ciDateType2.getDateType().getCIDateTypeCode().getCodeListValue());
             var date = safeGet(() -> ciDateType2.getDate().getDateTime());
             if (type.isPresent() && date.isPresent()) {
-                dateMap.put(GeoNetworkField.valueOf(type.get()), date.get().toString());
+                try {
+                    dateMap.put(GeoNetworkField.valueOf(type.get()), date.get().toString());
+                } catch (IllegalArgumentException e) {
+                    // dateType we do not track, e.g. lastUpdate or superseded
+                }
             }
         });
         return dateMap;
