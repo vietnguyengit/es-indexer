@@ -4,7 +4,6 @@ import au.org.aodn.cloudoptimized.service.DataAccessService;
 import au.org.aodn.esindexer.service.IndexCloudOptimizedService;
 import au.org.aodn.esindexer.service.IndexerMetadataService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,15 +19,10 @@ import org.springframework.stereotype.Component;
  * <ul>
  *     <li>indexAllMetadata</li>
  *     <li>indexAllMetadataFromUuid</li>
- *     <li>indexMetadata</li>
  *     <li>indexAllCODataset</li>
  *     <li>indexAllCODataFromUuid</li>
- *     <li>indexCODataset</li>
  * </ul>
  *     The third argument is optional and depends on the job name;
- *
- * <p>
- * Note: Some jobs are not yet implemented and will throw a NotImplementedException if invoked.
  */
 @Slf4j
 @Component
@@ -46,10 +40,8 @@ public class BatchJobRunner {
 
     private static final String INDEX_ALL_METADATA = "indexAllMetadata";
     private static final String INDEX_ALL_METADATA_FROM_UUID = "indexAllMetadataFromUuid";
-    private static final String INDEX_ONE_METADATA = "indexMetadata";
     private static final String INDEX_ALL_CLOUD_OPTIMISED_DATASET = "indexAllCODataset";
     private static final String INDEX_ALL_CLOUD_OPTIMISED_DATASET_FROM_UUID = "indexAllCODataFromUuid";
-    private static final String INDEX_ONE_CLOUD_OPTIMISED_DATASET = "indexCODataset";
 
     public void run(String jobName, String jobParam) throws Exception {
         log.info("Starting batch job: {}", jobName);
@@ -68,9 +60,6 @@ public class BatchJobRunner {
                 indexAllMetadata(jobParam);
                 break;
 
-            case INDEX_ONE_METADATA:
-                throw new NotImplementedException("IndexMetadata not yet implemented");
-
             case INDEX_ALL_CLOUD_OPTIMISED_DATASET:
                 if (jobParam != null) {
                     throw new IllegalArgumentException("Job parameter not required for job: " + jobName);
@@ -84,13 +73,6 @@ public class BatchJobRunner {
                 }
                 indexAllCloudOptimisedDataset(jobParam);
                 break;
-
-            case INDEX_ONE_CLOUD_OPTIMISED_DATASET:
-                if (jobParam == null) {
-                    throw new IllegalArgumentException("Job parameter (metadataUuid) is required for job: " + jobName);
-                }
-                throw new NotImplementedException("Index All Metadata");
-
 
             default:
                 throw new IllegalArgumentException("Unknown job name: " + jobName);

@@ -4,7 +4,6 @@ import au.org.aodn.ardcvocabs.model.ArdcCurrentPaths;
 import au.org.aodn.ardcvocabs.service.ArdcVocabService;
 import au.org.aodn.esindexer.exception.IndexNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

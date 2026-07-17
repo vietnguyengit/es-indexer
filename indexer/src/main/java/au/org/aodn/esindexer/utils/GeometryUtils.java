@@ -20,7 +20,6 @@ import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -101,17 +100,6 @@ public class GeometryUtils {
         catch(IOException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-    /**
-     * Although GeoJson point support 3D, however our target Elastic Search do not, so we need to use point2D plus
-     * a properties call depth.
-     * @param lng - lng
-     * @param lat - lat
-     * @return - The map that represent the geoJson
-     */
-    public static Map<?,?> createGeoShapeJson(BigDecimal lng, BigDecimal lat) {
-        Point point = factory.createPoint(new Coordinate(lng.doubleValue(), lat.doubleValue()));
-        return createGeoShapeJson(List.of(List.of(point)));
     }
     /**
      * @param polygons - Assume to be EPSG:4326, as GeoJson always use this encoding.
@@ -209,18 +197,6 @@ public class GeometryUtils {
         }
 
         return factory.createPolygon(shell, holes);
-    }
-    /**
-     * Reverses the order of coordinates in an array.
-     * This method is used to reorder polygon vertices when they are not in
-     * the desired counterclockwise or clockwise order.
-     *
-     * @param coords Array of coordinates to be reversed.
-     * @return Array of coordinates in reversed order.
-     */
-    protected static Coordinate[] reverseCoordinates(Coordinate[] coords) {
-        CoordinateArrays.reverse(coords);
-        return coords;
     }
     /**
      * Special function to convert a MuliplePolygon to List<Geometry>

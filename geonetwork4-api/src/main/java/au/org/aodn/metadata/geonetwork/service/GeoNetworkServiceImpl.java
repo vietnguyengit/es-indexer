@@ -565,9 +565,6 @@ public class GeoNetworkServiceImpl implements GeoNetworkService {
         return getServer() + "/geonetwork/srv/api/groups/{id}";
     }
 
-    protected String getReIndexEndpoint() {
-        return getServer() + "/geonetwork/srv/api/site/index?reset=false&asynchronous=false";
-    }
     /**
      * According to ElasticSearch Doc:
      * Avoid using from and size to page too deeply or request too many results at once. Search requests usually

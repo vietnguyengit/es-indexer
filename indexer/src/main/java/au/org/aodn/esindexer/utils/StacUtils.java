@@ -1,7 +1,5 @@
 package au.org.aodn.esindexer.utils;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.locationtech.jts.geom.Envelope;
@@ -38,9 +36,7 @@ public class StacUtils {
 
     protected static Logger logger = LogManager.getLogger(StacUtils.class);
 
-    @Setter
-    @Getter
-    protected static int scale = 10;
+    private static final int SCALE = 10;
 
     /**
      * Create list of bbox, where the first one is the overall bbox
@@ -98,10 +94,10 @@ public class StacUtils {
                 overallBoundingBox.init(minX, maxX, overallBoundingBox.getMinY(), overallBoundingBox.getMaxY());
 
                 result.add(List.of(
-                        BigDecimal.valueOf(overallBoundingBox.getMinX()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMinY()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMaxX()).setScale(scale, RoundingMode.HALF_UP),
-                        BigDecimal.valueOf(overallBoundingBox.getMaxY()).setScale(scale, RoundingMode.HALF_UP)));
+                        BigDecimal.valueOf(overallBoundingBox.getMinX()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMinY()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMaxX()).setScale(SCALE, RoundingMode.HALF_UP),
+                        BigDecimal.valueOf(overallBoundingBox.getMaxY()).setScale(SCALE, RoundingMode.HALF_UP)));
 
                 for (List<Geometry> polygons : listOfPolygons) {
 
@@ -113,10 +109,10 @@ public class StacUtils {
                                 individualEnvelope.expandToInclude(p.getEnvelopeInternal());
                             }
                             result.add(List.of(
-                                    BigDecimal.valueOf(individualEnvelope.getMinX()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMinY()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMaxX()).setScale(scale, RoundingMode.HALF_UP),
-                                    BigDecimal.valueOf(individualEnvelope.getMaxY()).setScale(scale, RoundingMode.HALF_UP)));
+                                    BigDecimal.valueOf(individualEnvelope.getMinX()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMinY()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMaxX()).setScale(SCALE, RoundingMode.HALF_UP),
+                                    BigDecimal.valueOf(individualEnvelope.getMaxY()).setScale(SCALE, RoundingMode.HALF_UP)));
                         }
                     }
                 }

@@ -15,18 +15,7 @@ public class AssetModel {
     // https://github.com/radiantearth/stac-spec/blob/master/best-practices.md#list-of-asset-roles
     public enum Role {
         DATA("data"),
-        METADATA("metadata"),
-        THUMBNAIL("thumbnail"),
-        OVERVIEW("overview"),
-        SUMMARY("summary"),
-        VISUAL("visual"),
-        DATE("date"),
-        GRAPHIC("graphic"),
-        DATA_MASK("data-mask"),
-        SNOW_ICE("snow-ice"),
-        LAND_WATER("land-water"),
-        WATER_MASK("water-mask"),
-        ISO_19115("iso-19115");
+        SUMMARY("summary");
 
         private final String role;
 

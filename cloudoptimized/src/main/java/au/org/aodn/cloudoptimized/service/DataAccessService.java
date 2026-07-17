@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface DataAccessService {
 
     enum HealthStatus {
-        STARTING("STARTING"),
         UP("UP"),
         UNKNOWN("UNKNOWN");
 

@@ -26,7 +26,6 @@ public class VocabModel {
     protected String replacedBy;
     protected String definition;
     protected String about;
-    protected List<VocabModel> broader;
     protected List<VocabModel> narrower;
     protected String version;
 }

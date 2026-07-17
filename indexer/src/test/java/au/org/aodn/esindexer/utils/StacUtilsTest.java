@@ -38,10 +38,10 @@ public class StacUtilsTest {
         // Overall: [70.0, -70.0, 190.0, 20.0]
         // Shift to [-180, 180]: [70.0, -70.0, -170.0, 20.0] (since 190 - 360 = -170)
         List<BigDecimal> expectedOverall = Arrays.asList(
-                BigDecimal.valueOf(70.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(-70.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(190.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(20.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP)
+                BigDecimal.valueOf(70.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(-70.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(190.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(20.0).setScale(10, RoundingMode.HALF_UP)
         );
         assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
     }
@@ -57,10 +57,10 @@ public class StacUtilsTest {
 
         // A box crossing longitude 0 must keep its shape, not flip to the far side of the planet
         List<BigDecimal> expectedOverall = Arrays.asList(
-                BigDecimal.valueOf(-10.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(-20.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(10.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(20.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP)
+                BigDecimal.valueOf(-10.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(-20.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(10.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(20.0).setScale(10, RoundingMode.HALF_UP)
         );
         assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
     }
@@ -75,10 +75,10 @@ public class StacUtilsTest {
         List<List<BigDecimal>> result = StacUtils.createStacBBox(inputPolygons);
 
         List<BigDecimal> expectedOverall = Arrays.asList(
-                BigDecimal.valueOf(-180.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(-90.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(180.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP),
-                BigDecimal.valueOf(90.0).setScale(StacUtils.getScale(), RoundingMode.HALF_UP)
+                BigDecimal.valueOf(-180.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(-90.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(180.0).setScale(10, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(90.0).setScale(10, RoundingMode.HALF_UP)
         );
         assertEquals(expectedOverall, result.get(0), "Overall bounding box is incorrect");
     }

@@ -1,12 +1,9 @@
 package au.org.aodn.esindexer.utils;
 
 import au.org.aodn.metadata.iso19115_3_2018.*;
-import org.springframework.http.MediaType;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class CommonUtils {
@@ -19,26 +16,6 @@ public class CommonUtils {
                 | IndexOutOfBoundsException
                 | ClassCastException ignored) {
             return Optional.empty();
-        }
-    }
-
-    // alternative function for @Retryable annotation when the class is not a spring bean
-    public static void persevere(BooleanSupplier action) {
-        persevere(10, 2, action);
-    }
-
-    public static void persevere(int maxRetries, int delaySecond, BooleanSupplier action) {
-
-        for (int i = 0; i < maxRetries; i++) {
-            var isSuccessful = action.getAsBoolean();
-            if (isSuccessful) {
-                return;
-            }
-            try {
-                Thread.sleep(delaySecond * 1000L);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
         }
     }
 

@@ -14,15 +14,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.*;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 @Configuration
 @EnableRetry
 @EnableAsync
 public class IndexerConfig {
-
-    @Value("${app.geometry.enableGridSpatialExtents:false}")
-    protected boolean girdSpatialExtents;
 
     @Value("${app.geometry.coastalPrecision:0.5}")
     protected double coastalPrecision;
@@ -37,10 +33,6 @@ public class IndexerConfig {
         GeometryUtils.init();
     }
 
-    @PreDestroy
-    public void cleanUp() {
-        // Clean up resources
-    }
     /**
      * We need to create component here because we do not want to run test with real http connection
      * that depends on remote site. The test config need to create an instance of bean for testing
